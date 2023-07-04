@@ -3,18 +3,36 @@
   import AppHeader from './components/AppHeader.vue';
   import Loader from './components/Loader.vue';
   import ErrorMessage from './components/ErrorMessage.vue';
+  import Sidebar from './components/sidebar/Sidebar.vue';
 
   export default {
     components: {
       AppHeader,
       Loader,
       ErrorMessage,
+      Sidebar,
     },
     data() {
       return {
         posts: [],
         isLoading: false,
         errorMessage: '',
+        isAddButtonActive: false,
+        openPost: '',
+      }
+    },
+    methods: {
+      toggleAddButtonActive() {
+        this.isAddButtonActive = !this.isAddButtonActive;
+        this.openPost = '';
+      },
+      toggleOpenPost(post) {
+        this.openPost = this.openPost === post.id ? '' : post.id;
+        this.isAddButtonActive = false;
+      },
+      handlePostCreated(post) {
+        this.posts.push(post);
+        this.toggleOpenPost(post);
       }
     },
     mounted() {
@@ -47,6 +65,8 @@
                 <button 
                   type="button" 
                   class="button is-link" 
+                  :class="{ 'is-light': isAddButtonActive }"
+                  @click="toggleAddButtonActive"
                   aria-label="Add new post"
                 >
                   Add New Post
@@ -73,10 +93,12 @@
                     <td class="has-text-right is-vcentered">
                       <button 
                         type="button" 
-                        class="button is-link" 
+                        class="button is-link"
+                        :class="{ 'is-light': openPost !== post.id }"
+                        @click="toggleOpenPost(post)" 
                         aria-label="Open post"
                       >
-                        Open
+                        {{ openPost === post.id ? 'Close' : 'Open' }}
                       </button>
                     </td>
                   </tr>
@@ -99,18 +121,37 @@
             </div>
           </div>
         </div>
+
+        <Transition>
+          <Sidebar 
+            v-if="isAddButtonActive || openPost !== ''" 
+            @cancel="isAddButtonActive = false"
+            @create="handlePostCreated" 
+            :postId="openPost" 
+          />
+        </Transition>
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-  .container {
-    margin: 0 auto;
-    position: relative;
-    width: auto;
-  }
-  .section {
-    padding: 3rem 1.5rem;
-  }
+.container {
+  margin: 0 auto;
+  position: relative;
+  width: auto;
+}
+.section {
+  padding: 3rem 1.5rem;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: max-width 0.5s ease, max-height 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  max-width: 0;
+  max-height: 0;
+}
 </style>
