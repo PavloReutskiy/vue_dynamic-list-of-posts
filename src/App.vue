@@ -23,8 +23,10 @@
     },
     methods: {
       toggleAddButtonActive() {
-        this.isAddButtonActive = !this.isAddButtonActive;
-        this.openPost = '';
+        if (!this.isAddButtonActive) {
+          this.isAddButtonActive = !this.isAddButtonActive;
+          this.openPost = '';
+        }
       },
       toggleOpenPost(post) {
         this.openPost = this.openPost === post.id ? '' : post.id;
@@ -136,22 +138,40 @@
 </template>
 
 <style scoped>
-.container {
-  margin: 0 auto;
-  position: relative;
-  width: auto;
-}
-.section {
-  padding: 3rem 1.5rem;
-}
 .v-enter-active,
 .v-leave-active {
-  transition: max-width 0.5s ease, max-height 0.5s ease;
+  overflow: hidden;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
 .v-enter-from,
 .v-leave-to {
-  max-width: 0;
-  max-height: 0;
+  transform: scale(0);
+  opacity: 0;
+}
+
+.v-enter-to,
+.v-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
+
+@media (min-width: 769px) {
+  .v-enter-active,
+  .v-leave-active {
+    transition: transform 0.5s ease-in-out, max-width 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  }
+
+  .v-enter-from,
+  .v-leave-to {
+    transform: scaleX(0);
+    max-width: 0;
+  }
+
+  .v-enter-to,
+  .v-leave-from {
+    transform: scaleX(1);
+    max-width: 50%;
+  }
 }
 </style>
